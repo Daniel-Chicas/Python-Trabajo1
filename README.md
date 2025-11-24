@@ -1,2 +1,2 @@
-# Mestr-a-Python
+# Mestría - Python 
 Trabajo 1: Sintaxis Python
