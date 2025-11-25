@@ -6,7 +6,7 @@ listaNotas = []
 umbralAprobados = 5
 
 def main():
-    while(True):
+    while True:
         limpiar_pantalla()
         opcion = ""
         print("""
@@ -30,9 +30,9 @@ def main():
             input("\nPresione Enter para continuar...")
         elif opcion == "3":
             limpiar_pantalla()
-            print("Mostrar materias aprobadas y reprobadas") 
+            print("Mostrar materias aprobadas y reprobadas")
             mostrarMateriasAprobadasYReprobadas()
-            input("\nPresione Enter para continuar...") 
+            input("\nPresione Enter para continuar...")
         elif opcion == "4":
             limpiar_pantalla()
             print("Mostrar materia con mejor y peor calificación")
@@ -48,7 +48,7 @@ def main():
             print(">>>>> PROMEDIO GENERAL <<<<<")
             mostrarPromedioGeneral()
             print("================================================")
-            print(">>>>> MATERIAS APROBADAS Y REPROBADAS <<<<<") 
+            print(">>>>> MATERIAS APROBADAS Y REPROBADAS <<<<<")
             mostrarMateriasAprobadasYReprobadas()
             print("================================================")
             print(">>>>> MEJOR Y PEOR CALIFICACIÓN <<<<<")
@@ -59,8 +59,8 @@ def main():
             limpiar_pantalla()
             break
         else:
-            print("Opción no válida. Por favor, seleccione una opción del 1 al 8.")
-        
+            print("Opción no válida. Por favor, seleccione una opción del 1 al 6.")
+
     print("Saliendo del programa. ¡Hasta luego!")
 
 def ingresar_calificaciones():
@@ -82,8 +82,8 @@ def ingresar_calificaciones():
                     print("La calificación debe estar entre 0 y 10.")
         except ValueError:
             print("Por favor, ingrese un número válido para la calificación.")
-    print(">>>>> Calificaciones ingresadas correctamente. <<<<<") 
-    mostrarListadoCursos()    
+    print(">>>>> Calificaciones ingresadas correctamente. <<<<<")
+    mostrarListadoCursos()
     input("\nPresione Enter para continuar...")
 
 def calcular_promedio(calificaciones):
@@ -92,25 +92,32 @@ def calcular_promedio(calificaciones):
     return sum(calificaciones) / len(calificaciones)
 
 def determinar_estado(calificaciones, umbral):
-    aprobadas, reprobadas = [], []
-    indiceAprobada, indiceReprobada = [], []
-    for i in range(len(calificaciones)):
-        if calificaciones[i] >= umbral:
-            aprobadas.append((listaCursos[i]))
-            indiceAprobada.append(i)
+    indices_aprobadas = []
+    indices_reprobadas = []
+
+    for i, nota in enumerate(calificaciones):
+        if nota >= umbral:
+            indices_aprobadas.append(i)
         else:
-            reprobadas.append((listaCursos[i]))
-            indiceReprobada.append(i)
-    return aprobadas, reprobadas
+            indices_reprobadas.append(i)
+
+    return indices_aprobadas, indices_reprobadas
 
 def encontrar_extremos(calificaciones):
+    """
+    Debe devolver los índices de las calificaciones extrema:
+    - índice de la calificación más alta
+    - índice de la calificación más baja
+    """
     if len(calificaciones) == 0:
         return None, None
+
     max_nota = max(calificaciones)
     min_nota = min(calificaciones)
     indice_max = calificaciones.index(max_nota)
     indice_min = calificaciones.index(min_nota)
-    return (listaCursos[indice_max], max_nota), (listaCursos[indice_min], min_nota)
+
+    return indice_max, indice_min
 
 def limpiar_pantalla():
     if sys.platform == 'win32':
@@ -118,27 +125,41 @@ def limpiar_pantalla():
 
 def mostrarPromedioGeneral():
     promedio = calcular_promedio(listaNotas)
-    print(f"El promedio general es: {promedio:.2f}")
+    if len(listaNotas) == 0:
+        print("No hay calificaciones para calcular el promedio.")
+    else:
+        print(f"El promedio general es: {promedio:.2f}")
 
 def mostrarListadoCursos():
-    print("Listado de materias y calificaciones:")
-    for i in range(len(listaCursos)):
-        print(f"{listaCursos[i]}: {listaNotas[i]}") 
+    if len(listaCursos) == 0:
+        print("No hay materias registradas.")
+    else:
+        print("Listado de materias y calificaciones:")
+        for i in range(len(listaCursos)):
+            print(f"{listaCursos[i]}: {listaNotas[i]}")
 
 def mostrarMateriasAprobadasYReprobadas():
-    aprobadas, reprobadas = determinar_estado(listaNotas, umbralAprobados)
+    indices_aprobadas, indices_reprobadas = determinar_estado(listaNotas, umbralAprobados)
+
     print("Materias Aprobadas:")
-    for materia in aprobadas:
-        print(f"- {materia}")
+    if not indices_aprobadas:
+        print("- Ninguna")
+    else:
+        for i in indices_aprobadas:
+            print(f"- {listaCursos[i]} ({listaNotas[i]})")
+
     print("\nMaterias Reprobadas:")
-    for materia in reprobadas:
-        print(f"- {materia}")
+    if not indices_reprobadas:
+        print("- Ninguna")
+    else:
+        for i in indices_reprobadas:
+            print(f"- {listaCursos[i]} ({listaNotas[i]})")
 
 def mostrarMejorPeorCalificacion():
-    mejor, peor = encontrar_extremos(listaNotas)
-    if mejor and peor:
-        print(f"Mejor calificación: {mejor[0]} con {mejor[1]}")
-        print(f"Peor calificación: {peor[0]} con {peor[1]}")
+    indice_max, indice_min = encontrar_extremos(listaNotas)
+    if indice_max is not None and indice_min is not None:
+        print(f"Mejor calificación: {listaCursos[indice_max]} con {listaNotas[indice_max]}")
+        print(f"Peor calificación: {listaCursos[indice_min]} con {listaNotas[indice_min]}")
     else:
         print("No hay calificaciones ingresadas.")
 
